@@ -1,4 +1,4 @@
-class User():
+class Player():
     def __init__(self):
         self.angel = None
         self.mortal = None

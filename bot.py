@@ -18,7 +18,7 @@ bot.
 import logging
 import csv
 import config
-from user import User
+from player import Player
 import collections
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -33,10 +33,10 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-users = collections.defaultdict(User)
+players = collections.defaultdict(Player)
 
-def initUsers():
-    with open('users.txt') as csv_file:
+def initPlayers():
+    with open('players.csv') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         for row in csv_reader:
@@ -44,12 +44,12 @@ def initUsers():
                 print(f'Column names are {", ".join(row)}')
                 line_count += 1
             else:
-                user = row[0].strip()
+                player = row[0].strip()
                 angel = row[1].strip()
                 mortal = row[2].strip()
-                print(f'\t{user} has angel {angel} and mortal {mortal}.')
-                users[user].angel = users[angel]
-                users[user].mortal = users[mortal]
+                print(f'\t{player} has angel {angel} and mortal {mortal}.')
+                players[player].angel = players[angel]
+                players[player].mortal = players[mortal]
                 line_count += 1
         print(f'Processed {line_count} lines.')
 
@@ -57,7 +57,7 @@ def initUsers():
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    users[update.message.chat.username].chat_id = update.message.chat.id
+    players[update.message.chat.username].chat_id = update.message.chat.id
     update.message.reply_text('Hi! Use /send to send a message to your angel or mortal and /cancel to cancel message')
 
 
@@ -75,7 +75,7 @@ def send_command(update: Update, context: CallbackContext):
     return CHOOSING
 
 def startAngel(update: Update, context: CallbackContext):
-    chat_id = users[update.callback_query.message.chat.username].angel.chat_id
+    chat_id = players[update.callback_query.message.chat.username].angel.chat_id
     if chat_id is None:
         update.callback_query.message.reply_text('Sorry your angel has not started this bot')
         return ConversationHandler.END
@@ -84,7 +84,7 @@ def startAngel(update: Update, context: CallbackContext):
     return ANGEL
 
 def startMortal(update: Update, context: CallbackContext):
-    chat_id = users[update.callback_query.message.chat.username].mortal.chat_id
+    chat_id = players[update.callback_query.message.chat.username].mortal.chat_id
     if chat_id is None:
         update.callback_query.message.reply_text('Sorry your mortal has not started this bot')
         return ConversationHandler.END
@@ -94,7 +94,7 @@ def startMortal(update: Update, context: CallbackContext):
 
 def sendAngel(update: Update, context: CallbackContext):
     reply = update.message.text
-    chat_id = users[update.message.chat.username].angel.chat_id
+    chat_id = players[update.message.chat.username].angel.chat_id
     context.bot.send_message(
                         text = reply,
                         chat_id = chat_id)
@@ -105,7 +105,7 @@ def sendAngel(update: Update, context: CallbackContext):
 
 def sendMortal(update: Update, context: CallbackContext):
     reply = update.message.text
-    chat_id = users[update.message.chat.username].mortal.chat_id
+    chat_id = players[update.message.chat.username].mortal.chat_id
     context.bot.send_message(
                         text = reply,
                         chat_id = chat_id)
@@ -115,8 +115,8 @@ def sendMortal(update: Update, context: CallbackContext):
     return ConversationHandler.END
 
 def cancel(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    logger.info("User %s canceled the conversation.", user.first_name)
+    player = update.message.from_player
+    logger.info("Player %s canceled the conversation.", player.first_name)
     update.message.reply_text(
         'Sending message cancelled.', reply_markup=ReplyKeyboardRemove()
     )
@@ -124,7 +124,7 @@ def cancel(update: Update, context: CallbackContext) -> int:
     return ConversationHandler.END
 
 def main():
-    initUsers()
+    initPlayers()
 
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
