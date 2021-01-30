@@ -1,5 +1,5 @@
 import collections
-import config
+from config import PLAYERS_FILENAME
 import csv
 
 class Player():
@@ -10,7 +10,7 @@ class Player():
 
 def initPlayers():
     players = collections.defaultdict(Player)
-    with open(config.PLAYERS_FILENAME) as csv_file:
+    with open(PLAYERS_FILENAME) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         for row in csv_reader:
