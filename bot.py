@@ -1,8 +1,6 @@
 import logging
-import csv
 import config
-from player import Player
-import collections
+import player
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler, CallbackQueryHandler
@@ -16,25 +14,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-players = collections.defaultdict(Player)
-
-def initPlayers():
-    with open('players.csv') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        for row in csv_reader:
-            if line_count == 0:
-                print(f'Column names are {", ".join(row)}')
-                line_count += 1
-            else:
-                player = row[0].strip()
-                angel = row[1].strip()
-                mortal = row[2].strip()
-                print(f'\t{player} has angel {angel} and mortal {mortal}.')
-                players[player].angel = players[angel]
-                players[player].mortal = players[mortal]
-                line_count += 1
-        print(f'Processed {line_count} lines.')
+players = player.initPlayers()
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
@@ -107,13 +87,11 @@ def cancel(update: Update, context: CallbackContext) -> int:
     return ConversationHandler.END
 
 def main():
-    initPlayers()
-
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(config.TOKEN, use_context=True)
+    updater = Updater(config.ANGEL_BOT_TOKEN, use_context=True)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
