@@ -56,7 +56,7 @@ def startMortal(update: Update, context: CallbackContext):
     return MORTAL
 
 def sendAngel(update: Update, context: CallbackContext):
-    reply = update.message.text
+    reply = f"Message from your Mortal:\n\n{update.message.text}"
     chat_id = players[update.message.chat.username].angel.chat_id
     context.bot.send_message(
                         text = reply,
@@ -67,7 +67,7 @@ def sendAngel(update: Update, context: CallbackContext):
     return ConversationHandler.END
 
 def sendMortal(update: Update, context: CallbackContext):
-    reply = update.message.text
+    reply = f"Message from your Angel:\n\n{update.message.text}"
     chat_id = players[update.message.chat.username].mortal.chat_id
     context.bot.send_message(
                         text = reply,
