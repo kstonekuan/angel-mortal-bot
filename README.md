@@ -5,7 +5,15 @@ Send anonymous messages between angels and mortals
 ## User data
 
 Data used for the game was small so just use file PLAYERS_FILENAME to store usernames of players.
-Order of columns is player, angel and mortal.
+Order of columns is player, angel and mortal with one header row.
+
+Sample:
+```
+Player,Angel,Mortal
+username1,username2,username3
+username2,username3,username1
+username3,username1,username2
+```
 
 ## Environment variables
 
