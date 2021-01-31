@@ -1,14 +1,14 @@
 import logging
 import player
 
-from config import ANGEL_NAME, MORTAL_NAME, ANGEL_BOT_TOKEN
+from config import ANGEL_ALIAS, MORTAL_ALIAS, ANGEL_BOT_TOKEN
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler, CallbackQueryHandler
 
 CHOOSING, ANGEL, MORTAL = range(3)
 
-helpText = f'Use /send to send a message to your {ANGEL_NAME} or {MORTAL_NAME} and /cancel to cancel message'
+helpText = f'Use /send to send a message to your {ANGEL_ALIAS} or {MORTAL_ALIAS} and /cancel to cancel message'
 
 # Enable logging
 logging.basicConfig(
@@ -17,13 +17,17 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-players = player.initPlayers()
+players = player.loadPlayers()
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
-    players[update.message.chat.username].chat_id = update.message.chat.id
+    playerName = update.message.chat.username.lower()
+    players[playerName].chat_id = update.message.chat.id
+
+    logger.info(f'{playerName} started the bot with chat_id {players[playerName].chat_id}')
+    
     update.message.reply_text(f'Hi! {helpText}')
 
 
@@ -33,54 +37,60 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def send_command(update: Update, context: CallbackContext):
     """Send a message when the command /send is issued."""
-    if players[update.message.chat.username].chat_id is None:
+    if players[update.message.chat.username.lower()].chat_id is None:
         update.message.reply_text('Sorry an error occured please type /start again')
         return ConversationHandler.END
 
-    send_menu = [[InlineKeyboardButton(ANGEL_NAME, callback_data='angel')],
-                 [InlineKeyboardButton(MORTAL_NAME, callback_data='mortal')]]
+    send_menu = [[InlineKeyboardButton(ANGEL_ALIAS, callback_data='angel')],
+                 [InlineKeyboardButton(MORTAL_ALIAS, callback_data='mortal')]]
     reply_markup = InlineKeyboardMarkup(send_menu)
-    update.message.reply_text('Who do you want to send your message to:', reply_markup=reply_markup)
+    update.message.reply_text('Send my message to my:', reply_markup=reply_markup)
 
     return CHOOSING
 
 def startAngel(update: Update, context: CallbackContext):
-    if players[update.callback_query.message.chat.username].angel.chat_id is None:
-        update.callback_query.message.reply_text(f'Sorry your {ANGEL_NAME} has not started this bot')
+    if players[update.callback_query.message.chat.username.lower()].angel.chat_id is None:
+        update.callback_query.message.reply_text(f'Sorry your {ANGEL_ALIAS} has not started this bot')
         return ConversationHandler.END
 
-    update.callback_query.message.reply_text(f'Please type your message to your {ANGEL_NAME}')
+    update.callback_query.message.reply_text(f'Please type your message to your {ANGEL_ALIAS}')
     return ANGEL
 
 def startMortal(update: Update, context: CallbackContext):
-    if players[update.callback_query.message.chat.username].mortal.chat_id is None:
-        update.callback_query.message.reply_text(f'Sorry your {MORTAL_NAME} has not started this bot')
+    if players[update.callback_query.message.chat.username.lower()].mortal.chat_id is None:
+        update.callback_query.message.reply_text(f'Sorry your {MORTAL_ALIAS} has not started this bot')
         return ConversationHandler.END
 
-    update.callback_query.message.reply_text(f'Please type your message to your {MORTAL_NAME}')
+    update.callback_query.message.reply_text(f'Please type your message to your {MORTAL_ALIAS}')
     return MORTAL
 
 def sendAngel(update: Update, context: CallbackContext):
+    playerName = update.message.chat.username.lower()
     context.bot.send_message(
-                        text = f"Message from your {MORTAL_NAME}:\n\n{update.message.text}",
-                        chat_id = players[update.message.chat.username].angel.chat_id)
+                        text = f"Message from your {MORTAL_ALIAS}:\n\n{update.message.text}",
+                        chat_id = players[playerName].angel.chat_id)
 
     update.message.reply_text('Message sent!')
+
+    logger.info(f'{playerName} sent a message to their {ANGEL_ALIAS} {players[playerName].angel.username}')
 
     return ConversationHandler.END
 
 def sendMortal(update: Update, context: CallbackContext):
+    playerName = update.message.chat.username.lower()
     context.bot.send_message(
-                        text = f"Message from your {ANGEL_NAME}:\n\n{update.message.text}",
-                        chat_id = players[update.message.chat.username].mortal.chat_id)
+                        text = f"Message from your {ANGEL_ALIAS}:\n\n{update.message.text}",
+                        chat_id = players[playerName].mortal.chat_id)
 
     update.message.reply_text('Message sent!')
+
+    logger.info(f'{playerName} sent a message to their {MORTAL_ALIAS} {players[playerName].mortal.username}')
 
     return ConversationHandler.END
 
 def cancel(update: Update, context: CallbackContext) -> int:
-    player = update.message.from_player
-    logger.info("Player %s canceled the conversation.", player.first_name)
+    player = update.message.from_user
+    logger.info(f"Player {player.first_name} canceled the conversation.")
     update.message.reply_text(
         'Sending message cancelled.', reply_markup=ReplyKeyboardRemove()
     )

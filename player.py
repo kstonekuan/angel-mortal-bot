@@ -4,11 +4,12 @@ import csv
 
 class Player():
     def __init__(self):
+        self.username = None
         self.angel = None
         self.mortal = None
         self.chat_id = None
 
-def initPlayers():
+def loadPlayers():
     players = collections.defaultdict(Player)
     with open(PLAYERS_FILENAME) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
@@ -18,12 +19,13 @@ def initPlayers():
                 print(f'Column names are {", ".join(row)}')
                 line_count += 1
             else:
-                player = row[0].strip()
-                angel = row[1].strip()
-                mortal = row[2].strip()
-                print(f'\t{player} has angel {angel} and mortal {mortal}.')
-                players[player].angel = players[angel]
-                players[player].mortal = players[mortal]
+                playerName = row[0].strip().lower()
+                angelName = row[1].strip().lower()
+                mortalName = row[2].strip().lower()
+                print(f'\t{playerName} has angel {angelName} and mortal {mortalName}.')
+                players[playerName].username = playerName
+                players[playerName].angel = players[angelName]
+                players[playerName].mortal = players[mortalName]
                 line_count += 1
         print(f'Processed {line_count} lines.')
     
