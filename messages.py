@@ -17,3 +17,6 @@ def getReceivedMessage(alias, text):
 
 def getSentMessageLog(alias, sender, receiver):
     return f'{sender} sent a message to their {alias} {receiver}'
+
+def getNotRegisteredLog(alias, sender, receiver):
+    return f'{sender} {alias} {receiver} has not started the bot'

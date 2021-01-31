@@ -24,6 +24,10 @@ players = player.loadPlayers()
 def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     playerName = update.message.chat.username.lower()
+    if players[playerName].username is None:
+        update.message.reply_text(f'Sorry you are not registered with the game currently')
+        return
+
     players[playerName].chat_id = update.message.chat.id
 
     logger.info(f'{playerName} started the bot with chat_id {players[playerName].chat_id}')
@@ -48,19 +52,21 @@ def send_command(update: Update, context: CallbackContext):
 
     return CHOOSING
 
-
-
 def startAngel(update: Update, context: CallbackContext):
-    if players[update.callback_query.message.chat.username.lower()].angel.chat_id is None:
+    playerName = update.callback_query.message.chat.username.lower()
+    if players[playerName].angel.chat_id is None:
         update.callback_query.message.reply_text(messages.getBotNotStartedMessage(ANGEL_ALIAS))
+        logger.info(messages.getNotRegisteredLog(ANGEL_ALIAS, playerName, players[playerName].angel.username))
         return ConversationHandler.END
 
     update.callback_query.message.reply_text(messages.getPlayerMessage(ANGEL_ALIAS))
     return ANGEL
 
 def startMortal(update: Update, context: CallbackContext):
-    if players[update.callback_query.message.chat.username.lower()].mortal.chat_id is None:
+    playerName = update.callback_query.message.chat.username.lower()
+    if players[playerName].mortal.chat_id is None:
         update.callback_query.message.reply_text(messages.getBotNotStartedMessage(MORTAL_ALIAS))
+        logger.info(messages.getNotRegisteredLog(MORTAL_ALIAS, playerName, players[playerName].mortal.username))
         return ConversationHandler.END
 
     update.callback_query.message.reply_text(messages.getPlayerMessage(MORTAL_ALIAS))
