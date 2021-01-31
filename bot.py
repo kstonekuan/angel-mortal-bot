@@ -1,6 +1,7 @@
 import logging
 import player
 import messages
+import datetime
 
 from config import ANGEL_ALIAS, MORTAL_ALIAS, ANGEL_BOT_TOKEN
 
@@ -12,6 +13,8 @@ CHOOSING, ANGEL, MORTAL = range(3)
 
 # Enable logging
 logging.basicConfig(
+    filename=f'{datetime.datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")}.log',
+    filemode='w',
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 
