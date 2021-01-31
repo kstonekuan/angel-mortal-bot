@@ -25,7 +25,7 @@ def start(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /start is issued."""
     playerName = update.message.chat.username.lower()
     if players[playerName].username is None:
-        update.message.reply_text(f'Sorry you are not registered with the game currently')
+        update.message.reply_text(messages.NOT_REGISTERED)
         return
 
     players[playerName].chat_id = update.message.chat.id
@@ -41,7 +41,13 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def send_command(update: Update, context: CallbackContext):
     """Start send convo when the command /send is issued."""
-    if players[update.message.chat.username.lower()].chat_id is None:
+    playerName = update.message.chat.username.lower()
+
+    if players[playerName].username is None:
+        update.message.reply_text(messages.NOT_REGISTERED)
+        return ConversationHandler.END
+
+    if players[playerName].chat_id is None:
         update.message.reply_text(messages.ERROR_CHAT_ID)
         return ConversationHandler.END
 

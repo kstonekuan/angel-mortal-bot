@@ -4,7 +4,7 @@ MESSAGE_SENT = 'Message sent!'
 HELP_TEXT = f'Use /send to send a message to your {ANGEL_ALIAS} or {MORTAL_ALIAS} and /cancel to cancel message'
 ERROR_CHAT_ID = 'Sorry an error occured please type /start again'
 SEND_COMMAND = 'Send a message to my:\n(/cancel to stop)'
-
+NOT_REGISTERED = 'Sorry you are not registered with the game currently'
 
 def getBotNotStartedMessage(alias):
     return f'Sorry your {alias} has not started this bot'
