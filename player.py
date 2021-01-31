@@ -1,4 +1,3 @@
-import collections
 from config import PLAYERS_FILENAME
 import csv
 
@@ -9,8 +8,7 @@ class Player():
         self.mortal = None
         self.chat_id = None
 
-def loadPlayers():
-    players = collections.defaultdict(Player)
+def loadPlayers(players):
     with open(PLAYERS_FILENAME) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
@@ -28,5 +26,3 @@ def loadPlayers():
                 players[playerName].mortal = players[mortalName]
                 line_count += 1
         print(f'Processed {line_count} lines.')
-    
-    return players

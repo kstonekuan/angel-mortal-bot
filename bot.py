@@ -2,6 +2,7 @@ import logging
 import player
 import messages
 import datetime
+import collections
 
 from config import ANGEL_ALIAS, MORTAL_ALIAS, ANGEL_BOT_TOKEN
 
@@ -20,7 +21,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-players = player.loadPlayers()
+players = collections.defaultdict(player.Player)
+player.loadPlayers(players)
 
 # Define a few command handlers. These usually take the two arguments update and
 # context. Error handlers also receive the raised TelegramError object in error.
@@ -37,10 +39,15 @@ def start(update: Update, context: CallbackContext) -> None:
 
     update.message.reply_text(f'Hi! {messages.HELP_TEXT}')
 
-
 def help_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /help is issued."""
     update.message.reply_text(messages.HELP_TEXT)
+
+def reload_command(update: Update, context: CallbackContext) -> None:
+    """Send a message when the command /reloadplayers is issued."""
+    player.loadPlayers(players)
+
+    update.message.reply_text(f'Players reloaded')
 
 def send_command(update: Update, context: CallbackContext):
     """Start send convo when the command /send is issued."""
@@ -126,6 +133,7 @@ def main():
     # on different commands - answer in Telegram
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
+    dispatcher.add_handler(CommandHandler("reloadplayers", reload_command))
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('send', send_command)],
