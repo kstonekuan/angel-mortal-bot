@@ -2,6 +2,10 @@
 
 Send anonymous messages between angels and mortals
 
+## Read on Medium
+
+https://chatbotslife.com/building-a-chatbot-for-angel-mortal-5d389ab7acde
+
 ## User data
 
 Data used for the game was small so just use file PLAYERS_FILENAME to store usernames of players.
