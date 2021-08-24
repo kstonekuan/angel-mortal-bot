@@ -88,11 +88,65 @@ def startMortal(update: Update, context: CallbackContext):
     update.callback_query.message.reply_text(messages.getPlayerMessage(config.MORTAL_ALIAS))
     return MORTAL
 
+def sendNonTextMessage(message, bot, chat_id):
+    if message.photo:
+        bot.send_photo(
+            photo = message.photo[-1],
+            caption = message.caption,
+            chat_id = chat_id
+            )
+    elif message.sticker:
+        bot.send_sticker(
+            sticker = message.sticker,
+            chat_id = chat_id
+            )
+    elif message.document:
+        bot.send_document(
+            document = message.document,
+             caption = message.caption,
+            chat_id = chat_id
+        )
+    elif message.video:
+        bot.send_video(
+            video = message.video,
+            caption = message.caption,
+            chat_id = chat_id
+        )
+    elif message.video_note:
+        bot.send_video_note(
+            video_note = message.video_note,
+            chat_id = chat_id
+        )
+    elif message.voice:
+        bot.send_voice(
+            voice = message.voice,
+            chat_id = chat_id
+        )
+    elif message.audio:
+        bot.send_audio(
+            audio = message.audio,
+            chat_id = chat_id
+        )
+    elif message.animation:
+        bot.send_animation(
+            animation = message.animation,
+            chat_id = chat_id
+        )
+
 def sendAngel(update: Update, context: CallbackContext):
     playerName = update.message.chat.username.lower()
-    context.bot.send_message(
-                        text = messages.getReceivedMessage(config.MORTAL_ALIAS, update.message.text),
-                        chat_id = players[playerName].angel.chat_id)
+    
+    if update.message.text:
+        context.bot.send_message(
+            text = messages.getReceivedMessage(config.MORTAL_ALIAS, update.message.text),
+            chat_id = players[playerName].angel.chat_id
+        )
+    else:
+        context.bot.send_message(
+            text = messages.getReceivedMessage(config.MORTAL_ALIAS),
+            chat_id = players[playerName].angel.chat_id
+        )
+        sendNonTextMessage(update.message, context.bot, players[playerName].angel.chat_id)
 
     update.message.reply_text(messages.MESSAGE_SENT)
 
@@ -102,9 +156,18 @@ def sendAngel(update: Update, context: CallbackContext):
 
 def sendMortal(update: Update, context: CallbackContext):
     playerName = update.message.chat.username.lower()
-    context.bot.send_message(
-                        text = messages.getReceivedMessage(config.ANGEL_ALIAS, update.message.text),
-                        chat_id = players[playerName].mortal.chat_id)
+
+    if update.message.text:
+        context.bot.send_message(
+            text = messages.getReceivedMessage(config.ANGEL_ALIAS, update.message.text),
+            chat_id = players[playerName].mortal.chat_id
+        )
+    else:
+        context.bot.send_message(
+            text = messages.getReceivedMessage(config.ANGEL_ALIAS),
+            chat_id = players[playerName].mortal.chat_id
+        )
+        sendNonTextMessage(update.message, context.bot, players[playerName].mortal.chat_id)
 
     update.message.reply_text(messages.MESSAGE_SENT)
 
@@ -139,8 +202,8 @@ def main():
         entry_points=[CommandHandler('send', send_command)],
         states={
             CHOOSING: [CallbackQueryHandler(startAngel, pattern='angel'), CallbackQueryHandler(startMortal, pattern='mortal')],
-            ANGEL: [MessageHandler(Filters.text & ~Filters.command, sendAngel)],
-            MORTAL: [MessageHandler(Filters.text & ~Filters.command, sendMortal)]
+            ANGEL: [MessageHandler(~Filters.command, sendAngel)],
+            MORTAL: [MessageHandler(~Filters.command, sendMortal)]
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
