@@ -1,7 +1,7 @@
-from config import ANGEL_ALIAS, MORTAL_ALIAS
+import config
 
 MESSAGE_SENT = 'Message sent!'
-HELP_TEXT = f'Use /send to send a message to your {ANGEL_ALIAS} or {MORTAL_ALIAS} and /cancel to cancel message'
+HELP_TEXT = f'Use /send to send a message to your {config.ANGEL_ALIAS} or {config.MORTAL_ALIAS} and /cancel to cancel message'
 ERROR_CHAT_ID = 'Sorry an error occured please type /start again'
 SEND_COMMAND = 'Send a message to my:\n(/cancel to stop)'
 NOT_REGISTERED = 'Sorry you are not registered with the game currently'

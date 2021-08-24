@@ -4,7 +4,7 @@ import messages
 import datetime
 import collections
 
-from config import ANGEL_ALIAS, MORTAL_ALIAS, ANGEL_BOT_TOKEN
+import config
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler, CallbackQueryHandler
@@ -61,8 +61,8 @@ def send_command(update: Update, context: CallbackContext):
         update.message.reply_text(messages.ERROR_CHAT_ID)
         return ConversationHandler.END
 
-    send_menu = [[InlineKeyboardButton(ANGEL_ALIAS, callback_data='angel')],
-                 [InlineKeyboardButton(MORTAL_ALIAS, callback_data='mortal')]]
+    send_menu = [[InlineKeyboardButton(config.ANGEL_ALIAS, callback_data='angel')],
+                 [InlineKeyboardButton(config.MORTAL_ALIAS, callback_data='mortal')]]
     reply_markup = InlineKeyboardMarkup(send_menu)
     update.message.reply_text(messages.SEND_COMMAND, reply_markup=reply_markup)
 
@@ -71,44 +71,44 @@ def send_command(update: Update, context: CallbackContext):
 def startAngel(update: Update, context: CallbackContext):
     playerName = update.callback_query.message.chat.username.lower()
     if players[playerName].angel.chat_id is None:
-        update.callback_query.message.reply_text(messages.getBotNotStartedMessage(ANGEL_ALIAS))
-        logger.info(messages.getNotRegisteredLog(ANGEL_ALIAS, playerName, players[playerName].angel.username))
+        update.callback_query.message.reply_text(messages.getBotNotStartedMessage(config.ANGEL_ALIAS))
+        logger.info(messages.getNotRegisteredLog(config.ANGEL_ALIAS, playerName, players[playerName].angel.username))
         return ConversationHandler.END
 
-    update.callback_query.message.reply_text(messages.getPlayerMessage(ANGEL_ALIAS))
+    update.callback_query.message.reply_text(messages.getPlayerMessage(config.ANGEL_ALIAS))
     return ANGEL
 
 def startMortal(update: Update, context: CallbackContext):
     playerName = update.callback_query.message.chat.username.lower()
     if players[playerName].mortal.chat_id is None:
-        update.callback_query.message.reply_text(messages.getBotNotStartedMessage(MORTAL_ALIAS))
-        logger.info(messages.getNotRegisteredLog(MORTAL_ALIAS, playerName, players[playerName].mortal.username))
+        update.callback_query.message.reply_text(messages.getBotNotStartedMessage(config.MORTAL_ALIAS))
+        logger.info(messages.getNotRegisteredLog(config.MORTAL_ALIAS, playerName, players[playerName].mortal.username))
         return ConversationHandler.END
 
-    update.callback_query.message.reply_text(messages.getPlayerMessage(MORTAL_ALIAS))
+    update.callback_query.message.reply_text(messages.getPlayerMessage(config.MORTAL_ALIAS))
     return MORTAL
 
 def sendAngel(update: Update, context: CallbackContext):
     playerName = update.message.chat.username.lower()
     context.bot.send_message(
-                        text = messages.getReceivedMessage(MORTAL_ALIAS, update.message.text),
+                        text = messages.getReceivedMessage(config.MORTAL_ALIAS, update.message.text),
                         chat_id = players[playerName].angel.chat_id)
 
     update.message.reply_text(messages.MESSAGE_SENT)
 
-    logger.info(messages.getSentMessageLog(ANGEL_ALIAS, playerName, players[playerName].angel.username))
+    logger.info(messages.getSentMessageLog(config.ANGEL_ALIAS, playerName, players[playerName].angel.username))
 
     return ConversationHandler.END
 
 def sendMortal(update: Update, context: CallbackContext):
     playerName = update.message.chat.username.lower()
     context.bot.send_message(
-                        text = messages.getReceivedMessage(ANGEL_ALIAS, update.message.text),
+                        text = messages.getReceivedMessage(config.ANGEL_ALIAS, update.message.text),
                         chat_id = players[playerName].mortal.chat_id)
 
     update.message.reply_text(messages.MESSAGE_SENT)
 
-    logger.info(messages.getSentMessageLog(MORTAL_ALIAS, playerName, players[playerName].mortal.username))
+    logger.info(messages.getSentMessageLog(config.MORTAL_ALIAS, playerName, players[playerName].mortal.username))
 
     return ConversationHandler.END
 
@@ -125,7 +125,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(ANGEL_BOT_TOKEN, use_context=True)
+    updater = Updater(config.ANGEL_BOT_TOKEN, use_context=True)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
@@ -157,4 +157,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    finally:
+        player.saveChatID(players)
+        logger.info(f'Player chat ids have been saved in {config.CHAT_ID_JSON}')
