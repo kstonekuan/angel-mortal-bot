@@ -30,5 +30,5 @@ ANGEL_ALIAS = os.environ['ANGEL_ALIAS']
 MORTAL_ALIAS = os.environ['MORTAL_ALIAS']
 
 ## Useful references
-https://python-telegram-bot.readthedocs.io/en/stable/telegram.bot.html?highlight=bot.send_photo
+https://python-telegram-bot.readthedocs.io/en/stable/telegram.bot.html#telegram.Bot.sendAnimation
 https://python-telegram-bot.readthedocs.io/en/stable/telegram.message.html#telegram.Message

@@ -45,7 +45,11 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def reload_command(update: Update, context: CallbackContext) -> None:
     """Send a message when the command /reloadplayers is issued."""
+    player.saveChatID(players)
+    logger.info(f'Player chat ids have been saved in {config.CHAT_ID_JSON}')
+
     player.loadPlayers(players)
+    logger.info(f'Players reloaded')
 
     update.message.reply_text(f'Players reloaded')
 
