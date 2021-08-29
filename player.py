@@ -41,6 +41,8 @@ def validatePairings(players: dict):
             logger.error(f'Error with {player.username} pairings')
             exit(1)
 
+    logger.info(f'Validation complete, no issues with pairings.')
+
 def saveChatID(players: dict):
     temp = {}
     for k, v in players.items():
