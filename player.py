@@ -31,7 +31,15 @@ def loadPlayers(players: dict):
                 line_count += 1
         logger.info(f'Processed {line_count} lines.')
 
+    validatePairings(players)
     loadChatID(players)
+
+def validatePairings(players: dict):
+    for _, player in players.items():
+        if player.angel.mortal.username != player.username or player.mortal.angel.username != player.username:
+            print(f'Error with {player.username} pairings')
+            logger.error(f'Error with {player.username} pairings')
+            exit(1)
 
 def saveChatID(players: dict):
     temp = {}
